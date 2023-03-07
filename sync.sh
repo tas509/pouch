@@ -1,0 +1,1 @@
+rsync -avuzr  /Library/WebServer/Documents/pouchjq3/ tomsmith@opal11.opalstack.com:/home/tomsmith/apps/static/pouch;echo https://static.everythingability.opalstacked.com/pouch/;
