@@ -14,7 +14,6 @@ db.info().then(function (info) {
 
 try{
   //Create indexes so we can use find. Needs pouchdb.find.js
-
   db.createIndex({
       index: {
           fields: ['name', "age", "weight", "height"]
@@ -22,7 +21,7 @@ try{
       }).then(function() {
      // console.log('Index created for name, age and weight fields');
       }).catch(function(err) {
-      console.log('Error creating index:', err);
+      //console.log('Error creating index:', err);
   });
 
   console.log( "Pouch DB Find plugin IS installed")
@@ -50,7 +49,11 @@ function createRecord(record) {
     console.log(err);
   }).then( function(e){
     console.log("creation done")
-    listAllRecords();
+    try{
+      listAllRecords();
+    }catch(e){
+      console.log("createRecord:", e)
+    }
   }
   );
 }
@@ -102,7 +105,7 @@ async function deleteRecord(id) {
 // See: https://github.com/cloudant/mango#combination-operators
 async function filterRecords(name, weight, height) {
   console.log("Filter: ", name, height, weight)
-  //$or, and
+  //$or, and... only working on name currently...
   const query = {
     selector: {
       $or: [
@@ -147,7 +150,7 @@ function loadJsonData(db, jsonUrl) {
       db.bulkDocs(docs)
         .then(result => {
           console.log('JSON Data loaded successfully');
-          listAllRecords()
+
         })
         .catch(error => {
           console.log('Error loading data:', error);
@@ -158,5 +161,11 @@ function loadJsonData(db, jsonUrl) {
     .catch(error => {
       console.log('Error fetching data:', error);
     });
+
+    try{
+      listAllRecords()
+    }catch(e){
+      console.log("listAllRecords not available, is this in a different app, i.e p5js?")
+    }
 
 }

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>PouchDB CRUD App</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <!--link rel="stylesheet" href="css/styles.css"-->
+    <style>
+        #list{
+            margin:100px;
+            
+        }
+        .showDiv{
+            padding:50px;
+            width:300px;
+            height:400px;
+            float:left;
+            margin:20px;
+            padding:10px;
+        }
+    </style>
+  </head>
+  <body>
+
+    
+    <div id="record-list">
+      <h2>1980s Kids TV</h2>
+      <div id="list"></div>
+    </div>
+   
+    <script src="js/pouchdb.min.js"></script>
+    <script src="js/pouchdb.find.js"></script>
+    <script src="js/jquery-3.6.0.min.js"></script>
+
+<script>
+const kidsDB = new PouchDB('kidsTV', {auto_compaction:true});
+
+function listAllRecords(){
+    var recordList = $('#list');
+    recordList.empty();
+
+    var options = {
+        include_docs: true,
+        descending: true,
+    }
+
+    const result =   kidsDB.allDocs(options).then(function(records){  
+        rows = records.rows
+        rows.forEach(function (record) {        
+            var doc = record.doc
+            var listItem = $('<ul class="showDiv"></ul>');
+            var title = $('<h3 class="record-name"></h3>').text(doc.Title);
+            title.css("background", "rgba(255, 255, 255, 0.5)");
+
+            listItem.append(title);
+            if (isNaN(doc.Runtime) == false){
+                runtimeText = "<b>Runtime:</b>" + doc.Runtime+"min" 
+            }else{
+                runtimeText = ""
+            }
+
+            
+            var html = doc.About + "<br>"  +runtimeText + "<br>"+doc.Genres.join(",")
+            var about = $('<p></p>').html(html);
+            about.css("background", "rgba(255, 255, 255, 0.5)");
+            about.css("font-weight", "bold");
+            about.css("padding", "10px");
+
+            listItem.append(about);
+
+            //var img = $('<img>').attr('src', doc.Src)
+            //listItem.append(img);
+
+            listItem.css("background-image", "url(" + doc.Src + ")");
+            listItem.css("background-repeat", "no-repeat");
+            listItem.css("background-size", "cover");
+            //listItem.css("padding-left", "200px");
+            
+            listItem.css("width", "300px");
+            listItem.css("height", "400px");
+            listItem.click(function() {
+                window.location = doc.Link
+            });
+            listItem.css("cursor", "pointer");
+
+            //
+            
+            recordList.append(listItem);
+        });//end forEach
+
+        });//end then
+}
+
+jQuery(document).ready(function($){
+    listAllRecords()
+  
+});
+
+    </script>
+
+   
+  </body>
+</html>

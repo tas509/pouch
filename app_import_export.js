@@ -1,7 +1,13 @@
+/*
+These are the functions used to download and import the entire database.
+
+*/
+
+
 function exportJSON (done) {
   db.allDocs({include_docs: true, descending: true}, function (err, doc) {
     const jsonLink = document.createElement('a')
-    jsonLink.download = `button-data-${Date.now()}.json`
+    jsonLink.download = `pouchDB-${Date.now()}.json`
     jsonLink.href = `data:application/json;charset=utf-8, ${JSON.stringify(doc.rows)}`
     jsonLink.click()
   })

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="js/pouchdb.min.js"></script>
+    <script src="js/pouchdb.find.js"></script>
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+
+    <script src="backend.js"></script>
+    <meta charset="utf-8" />
+
+        
+        <script src="js/papaparse.min.js"></script>
+        <title>Import CSV</title>
+        <style>
+            body{
+                font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+                background-color: #d3d3d3;
+            }
+            form{
+                margin:80px;
+                padding:40px;
+                background-color:#fff;
+                border-radius:20px;
+                border:0px;}
+        </style>
+    </head>
+
+    <body>
+
+        <form id="form">
+            <h3>Import CSV to DB</h3>
+            <input type="file" id="file" accept=".csv" />
+            
+            <input type="submit" value="Import CSV" />
+        </form>
+
+        <script>
+            const kidsDB = new PouchDB('kidsTV', {auto_compaction:true});
+
+            const myForm = document.getElementById("form");
+            const csvFile = document.getElementById("file");
+
+            myForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                const input = csvFile.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const text = e.target.result;
+                    const array = csvToArray(text);
+                    
+                    //console.log(array)
+
+                     //add objects to database...
+                    array.forEach(function(item){
+                        //item._id = new Date().toISOString()//get conflicts because the same
+                        kidsDB.post(item).then(function (response) {//note: post doesn't need need and id.
+                        console.log(item.Title, "created")
+                        return response
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                     })
+                });
+                   
+                };
+
+                reader.readAsText(input);
+
+                function csvToArray(str) {
+
+                    var results = Papa.parse( str );  // /header= true, dynamicTyping=true, transformHeader=true //don't work! boo!
+                    
+                    var headers = results.data.shift()
+                    var data = results.data
+                    var objArray = []
+                    
+                    for (r in data){
+                        var row =  data[r]
+                        var rowObj = {}
+                        for (h in headers){
+                            var header = headers[h]
+                            var value = data[r][h]
+                            console.log(r, header, value)
+
+                            if (header == "Runtime"){
+                                value = parseInt(value)//make a number
+                            }else if (header == "Genres"){
+                                value = value.split(",")//turn into a list
+                            }
+
+                            rowObj[header] = value
+                        }
+                        objArray.push(rowObj) 
+                    }
+                    return objArray
+                }
+            });
+        </script>
+    </body>
+</html>
+<!--
+
+See PapaParse: https://www.papaparse.com/docs 
+
+    delimiter: "",	// auto-detect
+	newline: "",	// auto-detect
+	quoteChar: '"',
+	escapeChar: '"',
+	header: false,
+	transformHeader: undefined,
+	dynamicTyping: false,
+	preview: 0,
+	encoding: "",
+	worker: false,
+	comments: false,
+	step: undefined,
+	complete: undefined,
+	error: undefined,
+	download: false,
+	downloadRequestHeaders: undefined,
+	downloadRequestBody: undefined,
+	skipEmptyLines: false,
+	chunk: undefined,
+	chunkSize: undefined,
+	fastMode: undefined,
+	beforeFirstChunk: undefined,
+	withCredentials: undefined,
+	transform: undefined,
+	delimitersToGuess: [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP]
+}
+-->

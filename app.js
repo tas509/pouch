@@ -12,7 +12,8 @@ function listAllRecords() {
       descending: true,
     }
   
-    const result =   db.allDocs(options).then(function(docs){     
+    const result =   db.allDocs(options).then(function(docs){  
+         
       //console.log("docs",docs.rows)
       displayRecords(docs.rows)
     })
@@ -64,7 +65,7 @@ function displayRecords(records) {
 
 }
 
-//DISPLAY GIVEN DOCS
+//DISPLAY GIVEN DOCS. Not quite got why filter returns docs, but 
 function displayDocs(docs) {
   var recordList = $('#record-list');
 
